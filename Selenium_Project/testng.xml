@@ -1,0 +1,11 @@
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="Grid Suite">
+
+    <test name="Chrome Test">
+        <parameter name="browser" value="chrome"/>
+        <classes>
+            <class name="Selenium_WebDriver.SeleniumGrid"/>
+        </classes>
+    </test>
+
+</suite>

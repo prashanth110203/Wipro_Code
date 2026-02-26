@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="Failed suite [Grid Suite]" guice-stage="DEVELOPMENT">
+  <test thread-count="5" name="Chrome Test(failed)">
+    <parameter name="browser" value="chrome"/>
+    <classes>
+      <class name="Selenium_WebDriver.SeleniumGrid">
+        <methods>
+          <include name="gridTest" invocation-numbers="0"/>
+        </methods>
+      </class> <!-- Selenium_WebDriver.SeleniumGrid -->
+    </classes>
+  </test> <!-- Chrome Test(failed) -->
+</suite> <!-- Failed suite [Grid Suite] -->
