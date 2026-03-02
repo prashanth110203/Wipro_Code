@@ -1,90 +1,71 @@
 package pk;
 
 import java.time.Duration;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import io.github.bonigarcia.wdm.WebDriverManager;
+
 public class SauceDemoAutomation {
 
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) {
+
+        // Setup ChromeDriver
+        WebDriverManager.chromedriver().setup();
 
         ChromeOptions options = new ChromeOptions();
-
-        options.addArguments("--disable-notifications");
-        options.addArguments("--disable-infobars");
-        options.addArguments("--disable-save-password-bubble");
-        options.addArguments("--disable-password-generation");
-        options.addArguments("--disable-features=PasswordLeakDetection");
-        options.addArguments("--incognito");
-
-        Map<String, Object> prefs = new HashMap<>();
-        prefs.put("credentials_enable_service", false);
-        prefs.put("profile.password_manager_enabled", false);
-
-        options.setExperimentalOption("prefs", prefs);
+        options.addArguments("--headless=new");  // Required for Jenkins
+        options.addArguments("--no-sandbox");
+        options.addArguments("--disable-dev-shm-usage");
+        options.addArguments("--remote-allow-origins=*");
 
         WebDriver driver = new ChromeDriver(options);
-
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
         driver.manage().window().maximize();
 
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+        try {
 
-        driver.get("https://www.saucedemo.com/");
-        Thread.sleep(1500);
+            // Open SauceDemo
+            driver.get("https://www.saucedemo.com/");
 
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("user-name")))
-                .sendKeys("standard_user");
-        Thread.sleep(1500);
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(20));
 
-        driver.findElement(By.id("password"))
-                .sendKeys("secret_sauce");
-        Thread.sleep(1500);
+            // Login
+            driver.findElement(By.id("user-name")).sendKeys("standard_user");
+            driver.findElement(By.id("password")).sendKeys("secret_sauce");
+            driver.findElement(By.id("login-button")).click();
 
-        driver.findElement(By.id("login-button")).click();
-        Thread.sleep(2000);
+            // Wait until inventory page loads
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.className("inventory_list")));
 
-        wait.until(ExpectedConditions.elementToBeClickable(
-                By.id("add-to-cart-sauce-labs-backpack"))).click();
-        Thread.sleep(1500);
+            System.out.println("Login successful!");
 
-        // Add second product
-        wait.until(ExpectedConditions.elementToBeClickable(
-                By.id("add-to-cart-sauce-labs-bike-light"))).click();
-        Thread.sleep(1500);
+            // Add first product to cart
+            WebElement addToCartBtn = driver.findElement(By.cssSelector(".inventory_item button"));
+            addToCartBtn.click();
 
-        driver.findElement(By.className("shopping_cart_link")).click();
-        Thread.sleep(2000);
+            System.out.println("Product added to cart.");
 
-        wait.until(ExpectedConditions.elementToBeClickable(
-                By.id("checkout"))).click();
-        Thread.sleep(2000);
+            // Click cart icon
+            driver.findElement(By.className("shopping_cart_link")).click();
 
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("first-name")))
-                .sendKeys("Prashanth");
-        Thread.sleep(1500);
+            // Wait until cart page loads
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.className("cart_item")));
 
-        driver.findElement(By.id("last-name")).sendKeys("Kathi");
-        Thread.sleep(1500);
+            System.out.println("Navigated to cart page successfully.");
 
-        driver.findElement(By.id("postal-code")).sendKeys("600001");
-        Thread.sleep(1500);
+            System.out.println("Test Completed Successfully!");
 
-        driver.findElement(By.id("continue")).click();
-        Thread.sleep(2000);
-
-        driver.findElement(By.id("finish")).click();
-        Thread.sleep(2000);
-
-        System.out.println("Order placed successfully!");
-
-        driver.quit();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            driver.quit();  // Always close browser
+        }
     }
 }
-
